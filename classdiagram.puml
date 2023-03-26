@@ -1,0 +1,49 @@
+@startuml
+
+class TelegramProperties{
+    + token: String
+}
+
+abstract class TelegramBotClient {
+    - properties: TelegramProperties
+    - bot: Bot
+    - handleAnyMessage()
+    + sendMessage(chatId: ChatId, text: String)
+    # processAnyMessage(incomeMessage: String): List<String>
+}
+
+TelegramProperties o- TelegramBotClient
+
+interface WordDefinitionMessageBuilder {
+    buildMessage(wordDefinition: WordDefinition): String
+}
+
+interface DictionaryResource {
+    findWordDefinition(word: String): List<WordDefinition>
+}
+
+together {
+    class VocabotService extends TelegramBotClient {
+        -dictionary: DictionaryResource
+        -messageBuilder: WordDefinitionMessageBuilder
+        # processAnyMessage(incomeMessage: String): List<String>
+    }
+
+    VocabotService o- FreeDictionaryResource
+    VocabotService o- TelegramWordDefinitionMessageBuilder
+
+    class FreeDictionaryResource implements DictionaryResource{
+        + findWordDefinition(word: String): List<WordDefinition>
+    }
+
+
+    class TelegramWordDefinitionMessageBuilder implements WordDefinitionMessageBuilder{
+        #buildMessage(wordDefinition: WordDefinition): String
+    }
+}
+
+
+
+
+
+@enduml

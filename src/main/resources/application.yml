@@ -1,0 +1,10 @@
+vocabot:
+  mongodb:
+    dbname: vocabot
+    host: localhost
+    port: 27017
+    user: user
+    pass: pass
+    uri: mongodb://${vocabot.mongodb.user}:${vocabot.mongodb.pass}@${vocabot.mongodb.host}:${vocabot.mongodb.port}
+  telegram:
+    token: token
