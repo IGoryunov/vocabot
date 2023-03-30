@@ -91,6 +91,7 @@ class SkyengDictionaryResource : DictionaryResource {
 
         private val PARTS_OF_SPEECH = mapOf(
             "n" to NOUN,
+            "v" to VERB,
             "prn" to PRONOUN,
             "prp" to PREPOSITION,
             "r" to ADVERB,
