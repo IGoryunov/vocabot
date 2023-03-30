@@ -4,10 +4,12 @@ import co.kongostream.vocabularybot.infra.client.telegram.TelegramBotClient
 import co.kongostream.vocabularybot.config.TelegramProperties
 import co.kongostream.vocabularybot.domain.dictionary.DictionaryResource
 import co.kongostream.vocabularybot.domain.dictionary.WordDefinitionMessageBuilder
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
 
 @Service
 class VocabotService(
+    @Qualifier("skyengDictionaryResource")
     private val dictionary: DictionaryResource,
     private val messageBuilder: WordDefinitionMessageBuilder,
     properties: TelegramProperties,

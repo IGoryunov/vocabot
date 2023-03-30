@@ -8,5 +8,6 @@ enum class PartOfSpeech {
     PREPOSITION,
     INTERJECTION,
     PRONOUN,
+    PHRASE,
 
 }

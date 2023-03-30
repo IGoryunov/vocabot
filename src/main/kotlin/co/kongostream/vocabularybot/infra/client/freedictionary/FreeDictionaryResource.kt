@@ -54,7 +54,7 @@ class FreeDictionaryResource : DictionaryResource {
                         Definition(
                             partOfSpeech = partOfSpeech.recognizePartOfSpeech(),
                             meaning = meaning.definition!!,
-                            example = meaning.example
+                            examples = meaning.example?.let { listOf(it) }
                         )
                     }
             )

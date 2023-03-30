@@ -32,16 +32,44 @@ together {
     VocabotService o- FreeDictionaryResource
     VocabotService o- TelegramWordDefinitionMessageBuilder
 
+    entity WordDefinition {
+        +word: String
+        +phonetic: Phonetic?
+        +definitions: List<Definition>
+    }
+    entity Definition{
+        +partOfSpeech: PartOfSpeech,
+        +meaning: String,
+        +translation: Translation
+        +example: String?,
+        +image: String?
+    }
+
+    entity Phonetic{
+        +audio: String
+        +text: String
+    }
+    entity Translation {
+        +text: String
+        +note: String?
+    }
+    WordDefinition ..*Phonetic
+    WordDefinition ..*Definition
+    Definition ..*Translation
+
     class FreeDictionaryResource implements DictionaryResource{
         + findWordDefinition(word: String): List<WordDefinition>
     }
+    class SkyengDictionaryResource implements DictionaryResource {
+        + findWordDefinition(word: String): List<WordDefinition>
+    }
+    DictionaryResource ..> WordDefinition
 
 
     class TelegramWordDefinitionMessageBuilder implements WordDefinitionMessageBuilder{
         #buildMessage(wordDefinition: WordDefinition): String
     }
 }
-
 
 
 

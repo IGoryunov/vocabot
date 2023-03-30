@@ -9,9 +9,8 @@ import org.springframework.stereotype.Component
 class TelegramWordDefinitionMessageBuilder : WordDefinitionMessageBuilder {
 
     override fun buildMessage(wordDefinition: WordDefinition): String = buildString {
-        append("*${wordDefinition.word.replaceFirstChar { it.titlecase() }}*")
-        wordDefinition.phonetic?.let { append(" ${it.text}".escapeSpecialChars()) }
-        appendLine()
+        appendLine("\uD83D\uDD0E *${wordDefinition.word.replaceFirstChar { it.titlecase() }.escapeSpecialChars()}*")
+        wordDefinition.phonetic?.let { appendLine("\uD83D\uDC44 `/${it.text.escapeSpecialChars()}/`") }
 
         wordDefinition.definitions.groupBy { it.partOfSpeech }.forEach { (partOfSpeech, definitions) ->
             appendLine()
@@ -19,12 +18,17 @@ class TelegramWordDefinitionMessageBuilder : WordDefinitionMessageBuilder {
             definitions.forEachIndexed { index, def ->
                 append("\uD83D\uDCD6 ")
                 appendLine(def.meaning.escapeSpecialChars())
-                def.example?.let {
-                    appendLine("\uD83D\uDCAC _\"${it.escapeSpecialChars().boldWord(wordDefinition.word)}\"_")
+                def.translation?.text?.let { appendLine("\uD83C\uDDF7\uD83C\uDDFA ||${it.escapeSpecialChars()}||") }
+                if (def.translation?.note?.isNotBlank() == true) {
+                    appendLine("\uD83D\uDCC3 ||${def.translation.note.escapeSpecialChars()}||")
+                }
+                def.examples?.map {
+                    appendLine("\uD83D\uDCAC _\"${it.escapeSpecialChars(ignore = setOf('['.code, ']'.code)).boldPhrase()}\"_")
                     if (index != definitions.size - 1) {
                         appendLine()
                     }
                 }
+                def.image?.let { url -> appendLine("[image](${url.escapeSpecialChars()})") }
             }
         }
     }
@@ -37,17 +41,18 @@ class TelegramWordDefinitionMessageBuilder : WordDefinitionMessageBuilder {
         PREPOSITION  -> "\uD83D\uDC47 *PREPOSITION*"
         INTERJECTION -> "\uD83D\uDDE3 *INTERJECTION*"
         PRONOUN      -> "\uD83D\uDC68\u200D\uD83C\uDFA4 *PRONOUN*"
+        PHRASE       -> "\uD83D\uDDE3️ *PHRASE*"
     }
 
-    private fun String.boldWord(word: String): String =
-        replace(Regex("""\b$word\w*""", RegexOption.IGNORE_CASE)) { "*${it.groups.first()?.value ?: ""}*" }
+    private val regex = Regex("""\[(.*?)]""")
+    private fun String.boldPhrase(): String = replace(regex) { "*${it.groups[1]?.value ?: ""}*" }
 
     private val specialChars = setOf('_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!', '\\').map { it.code }
 
-    private fun String.escapeSpecialChars(): String {
+    private fun String.escapeSpecialChars(ignore: Set<Int> = emptySet()): String {
         return buildString {
             this@escapeSpecialChars.chars().forEach {
-                if (it in specialChars) {
+                if (it in specialChars && it !in ignore) {
                     append('\\')
                 }
                 append(it.toChar())
